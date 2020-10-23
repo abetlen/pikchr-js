@@ -1,0 +1,17 @@
+{
+  "name": "pikchr-js",
+  "version": "0.1.0",
+  "description": "Pikchr diagram markup language ported to Javascript",
+  "main": "index.js",
+  "module": "index.js",
+  "scripts": {
+    "build:emscripten": "docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk ./build.sh",
+    "build": "npm run build:emscripten",
+    "test": "ava"
+  },
+  "author": "Andrei Betlen",
+  "license": "0BSD",
+  "devDependencies": {
+    "ava": "^3.13.0"
+  }
+}
