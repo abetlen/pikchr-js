@@ -6,6 +6,7 @@
   "repository": "github:abetlen/pikchr-js",
   "main": "index.js",
   "module": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build:emscripten": "docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk ./build.sh",
     "build": "npm run build:emscripten",
