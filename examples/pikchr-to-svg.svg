@@ -1,0 +1,8 @@
+<svg xmlns='http://www.w3.org/2000/svg' style='font-size:initial;' class="pikchr" viewBox="0 0 188.41 34.56" data-pikchr-date="20260403102956">
+<path d="M2.16,32.4L67.9392,32.4L67.9392,2.16L2.16,2.16Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="35.0496" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">Pikchr</text>
+<polygon points="139.939,17.28 128.419,21.6 128.419,12.96" style="fill:rgb(0,0,0)"/>
+<path d="M67.9392,17.28L134.179,17.28"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<path d="M139.939,32.4L186.25,32.4L186.25,2.16L139.939,2.16Z"  style="fill:none;stroke-width:2.16;stroke:rgb(0,0,0);" />
+<text x="163.094" y="17.28" text-anchor="middle" fill="rgb(0,0,0)" dominant-baseline="central">SVG</text>
+</svg>

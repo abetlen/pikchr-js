@@ -21,9 +21,19 @@ async function main() {
 main();
 ```
 
-## License
+## Example
 
-This project is licensed under the [0BSD license](LICENSE).
+This Pikchr source:
+
+```pikchr
+box "Pikchr" fit
+arrow
+box "SVG" fit
+```
+
+renders as:
+
+![Pikchr example diagram](examples/pikchr-to-svg.svg)
 
 ## Contributing
 
@@ -50,3 +60,7 @@ Add changelog entries under `## [Unreleased]` using the pull request title follo
 6. Run `npm test`
 
 If upstream Pikchr changes its SVG output, update the test fixture in `test.js` to match the new generated output.
+
+## License
+
+This project is licensed under the [0BSD license](LICENSE).
