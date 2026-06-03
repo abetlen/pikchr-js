@@ -13,3 +13,9 @@ test('simple', async t => {
   const output = pikchr(markup)
 	t.is(output, expected);
 });
+
+test('legacy dimension arguments are accepted', async t => {
+  const pikchr = await loadPikchr()
+  const output = pikchr(markup, "pikchr", 0, 1, 1)
+	t.is(output, expected);
+});

@@ -3,7 +3,7 @@
 const Module = require("./pikchr.js");
 
 module.exports = function () {
-  return Module().then((module) => (markup, svgClass = "pikchr", flags = 0) => {
+  return Module().then((module) => (markup, svgClass = "pikchr", flags = 0, _height, _width) => {
     const cstring = module.ccall(
       "pikchr",
       "number",
