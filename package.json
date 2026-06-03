@@ -5,8 +5,37 @@
   "homepage": "https://github.com/abetlen/pikchr-js#readme",
   "repository": "github:abetlen/pikchr-js",
   "main": "index.js",
-  "module": "index.js",
+  "module": "index.mjs",
   "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.mts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "default": "./index.js"
+    },
+    "./index": {
+      "import": {
+        "types": "./index.d.mts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "default": "./index.js"
+    },
+    "./index.js": "./index.js",
+    "./index.mjs": "./index.mjs",
+    "./pikchr": "./pikchr.js",
+    "./pikchr.js": "./pikchr.js",
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build:emscripten": "docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk ./build.sh",
     "build": "npm run build:emscripten",

@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- fix: add CommonJS and ESM package entrypoints by @abetlen in #6
 - fix: export TypeScript declarations by @abetlen in #5
 - fix: correct Pikchr wasm pointer handling and expose dimensions and flags by @abetlen in #4
 - docs: add README installation, usage, example, and license sections by @abetlen in #3
