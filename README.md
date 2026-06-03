@@ -14,6 +14,8 @@ npm install pikchr-js
 
 ## Usage
 
+### Node.js
+
 ```js
 const loadPikchr = require("pikchr-js");
 
@@ -29,6 +31,22 @@ async function main() {
 }
 
 main();
+```
+
+### Browser
+
+```html
+<div id="diagram"></div>
+<script src="https://unpkg.com/pikchr-js/pikchr.js"></script>
+<script src="https://unpkg.com/pikchr-js/browser.js"></script>
+<script>
+  async function main() {
+    const pikchr = await loadPikchr();
+    document.getElementById("diagram").innerHTML = pikchr("box");
+  }
+
+  main();
+</script>
 ```
 
 ## Example
