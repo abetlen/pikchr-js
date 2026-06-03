@@ -1,5 +1,10 @@
 # Pikchr.js - Generate pikchr diagrams in the browser
 
+[![CI](https://github.com/abetlen/pikchr-js/actions/workflows/ci.yml/badge.svg)](https://github.com/abetlen/pikchr-js/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/pikchr-js.svg)](https://www.npmjs.com/package/pikchr-js)
+[![npm downloads](https://img.shields.io/npm/dm/pikchr-js.svg)](https://www.npmjs.com/package/pikchr-js)
+[![license](https://img.shields.io/npm/l/pikchr-js.svg)](LICENSE)
+
 What is Pikchr? From the [official documentation](https://pikchr.org/home/doc/trunk/homepage.md):
 
 > Pikchr (pronounced "picture") is a [PIC](https://en.wikipedia.org/wiki/Pic_language)-like markup language for diagrams in technical documentation.

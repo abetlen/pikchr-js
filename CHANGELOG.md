@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- docs: add README status badges by @abetlen in #14
+
 ## [0.1.2] - 2026-06-03
 
 - ci: add trusted npm publish workflow by @abetlen in #13
