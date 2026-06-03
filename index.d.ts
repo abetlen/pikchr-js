@@ -10,13 +10,13 @@ declare namespace loadPikchr {
     DARK_MODE: 0x0002;
   };
 
-  type Renderer = {
+  type Pikchr = {
     (pikchrString: string, className?: string, flags?: number, height?: number, width?: number): string;
     render(pikchrString: string, className?: string, flags?: number): Result;
     flags: Flags;
   };
 }
 
-declare function loadPikchr(): Promise<loadPikchr.Renderer>;
+declare function loadPikchr(): Promise<loadPikchr.Pikchr>;
 
 export = loadPikchr;
