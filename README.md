@@ -6,9 +6,28 @@ What is Pikchr? From the [official documentation](https://pikchr.org/home/doc/tr
 
 `Pikchr.js` allows you to turn Pikchr markup into svg diagrams directly in your browser.
 
-# Contributing
+## Usage
 
-## Pull request titles and changelog entries
+```js
+const loadPikchr = require("pikchr-js");
+
+async function main() {
+  const pikchr = await loadPikchr();
+  const svg = pikchr("box", "pikchr", 0, 1, 1);
+
+  console.log(svg);
+}
+
+main();
+```
+
+## License
+
+This project is licensed under the [0BSD license](LICENSE).
+
+## Contributing
+
+### Pull request titles and changelog entries
 
 Use pull request titles in the form `<tag>: <title>`, with an optional scope when it adds clarity.
 
@@ -21,7 +40,7 @@ Add changelog entries under `## [Unreleased]` using the pull request title follo
 - fix(ci): repair Y build by @contributor in #1234
 ```
 
-## Updating `pikchr.js`
+### Updating `pikchr.js`
 
 1. Download the latest source archive of [`pikchr`](https://pikchr.org/home/rchvdwnld/trunk)
 2. Extract the archive outside this repository
