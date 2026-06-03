@@ -6,9 +6,11 @@
   "repository": "github:abetlen/pikchr-js",
   "main": "index.js",
   "module": "index.mjs",
+  "unpkg": "./pikchr.js",
   "types": "index.d.ts",
   "exports": {
     ".": {
+      "unpkg": "./pikchr.js",
       "import": {
         "types": "./index.d.mts",
         "default": "./index.mjs"
