@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-06-03
+
 - ci: add trusted npm publish workflow by @abetlen in #13
 - fix: restrict npm package contents to runtime and documentation files by @abetlen in #11
 - ci: add GitHub Actions checks for tests, packaging, and generated builds by @abetlen in #10
