@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- fix: update stale package lockfile metadata by @abetlen in #8
 - fix: pin Emscripten build image to 5.0.7 by @abetlen in #7
 - fix: add CommonJS and ESM package entrypoints by @abetlen in #6
 - fix: export TypeScript declarations by @abetlen in #5
