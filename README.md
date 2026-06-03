@@ -35,6 +35,8 @@ renders as:
 
 ![Pikchr example diagram](examples/pikchr-to-svg.svg)
 
+See the [Pikchr user manual](https://pikchr.org/home/doc/trunk/doc/userman.md) for the full markup reference.
+
 ## Contributing
 
 ### Pull request titles and changelog entries
