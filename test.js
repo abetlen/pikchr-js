@@ -19,3 +19,13 @@ test('legacy dimension arguments are accepted', async t => {
   const output = pikchr(markup, "pikchr", 0, 1, 1)
 	t.is(output, expected);
 });
+
+test('render returns svg dimensions', async t => {
+  const pikchr = await loadPikchr()
+  const output = pikchr.render(markup)
+	t.deepEqual(output, {
+    svg: expected,
+    width: 112,
+    height: 76,
+  });
+});
