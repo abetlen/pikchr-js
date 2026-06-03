@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pikchr.js Editor</title>
+    <meta name="description" content="Edit Pikchr diagrams in the browser with Pikchr.js.">
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Pikchr.js editor">Pikchr.js</a>
+      <nav class="topnav" aria-label="Project links">
+        <a href="https://github.com/abetlen/pikchr-js">GitHub</a>
+        <a href="https://pikchr.org/home/doc/trunk/doc/userman.md">Manual</a>
+        <a href="https://www.npmjs.com/package/pikchr-js">npm</a>
+      </nav>
+    </header>
+
+    <main class="workspace" id="workspace">
+      <section class="source-pane" aria-labelledby="source-title">
+        <div class="pane-header">
+          <h1 id="source-title">Pikchr Editor</h1>
+          <div class="actions">
+            <button type="button" id="diagramButton">Diagram</button>
+            <button type="button" id="resetButton">Reset</button>
+            <button type="button" id="copyButton">Copy Link</button>
+            <button type="button" id="downloadButton">Download SVG</button>
+          </div>
+        </div>
+        <textarea id="sourceInput" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        <div class="console" id="console" role="status" aria-live="polite">Loading Pikchr...</div>
+      </section>
+
+      <section class="preview-pane" aria-labelledby="preview-title">
+        <div class="pane-header">
+          <h2 id="preview-title">Preview</h2>
+          <div class="toggles">
+            <label>
+              <input type="checkbox" id="darkModeInput">
+              Dark mode
+            </label>
+            <label>
+              <input type="checkbox" id="plainErrorsInput">
+              Plain errors
+            </label>
+            <button type="button" id="editorButton">Editor</button>
+          </div>
+        </div>
+        <div class="preview-canvas" id="previewCanvas"></div>
+        <div class="preview-meta" id="previewMeta"></div>
+      </section>
+    </main>
+
+    <script src="./pikchr.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

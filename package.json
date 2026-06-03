@@ -56,6 +56,7 @@
     "build:emscripten": "docker run --rm -v $(pwd):/src -u $(id -u):$(id -g) emscripten/emsdk:5.0.7 ./build.sh",
     "build": "npm run build:emscripten",
     "prepublishOnly": "npm test",
+    "site:build": "rm -rf _site && mkdir -p _site && cp -R site/. _site/ && cp pikchr.js _site/pikchr.js",
     "test": "ava"
   },
   "author": "Andrei Betlen",

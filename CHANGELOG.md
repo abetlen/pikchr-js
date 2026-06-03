@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- feat: add vanilla JavaScript GitHub Pages editor by @abetlen in #15
 - docs: add README status badges by @abetlen in #14
 
 ## [0.1.2] - 2026-06-03
