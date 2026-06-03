@@ -79,6 +79,29 @@ Add changelog entries under `## [Unreleased]` using the pull request title follo
 - fix(ci): repair Y build by @contributor in #1234
 ```
 
+### Publishing to npm
+
+This repository publishes npm releases from the `publish.yml` GitHub Actions workflow when a GitHub Release is published.
+
+Configure npm Trusted Publishing for `pikchr-js` before publishing a release.
+
+Use these values in the npm package settings:
+
+- Publisher: GitHub Actions
+- Organization or user: `abetlen`
+- Repository: `pikchr-js`
+- Workflow filename: `publish.yml`
+- Environment name: `npm-publish`
+- Allowed action: `npm publish`
+
+Create a GitHub environment named `npm-publish` and add required reviewers if you want manual approval before npm receives the OIDC publish request.
+
+Trusted Publishing requires GitHub-hosted runners, and the workflow uses Node.js 24 so the npm CLI supports OIDC authentication.
+
+For each release, merge a release PR that updates `package.json`, `package-lock.json`, and `CHANGELOG.md`, then create and publish a GitHub Release whose tag exactly matches the package version in `vX.Y.Z` form.
+
+The publish workflow verifies the tag against `package.json`, installs dependencies without a package-manager cache, runs tests, checks the tarball contents, and runs `npm publish` without an `NPM_TOKEN` secret.
+
 ### Updating `pikchr.js`
 
 1. Download the latest source archive of [`pikchr`](https://pikchr.org/home/rchvdwnld/trunk)
