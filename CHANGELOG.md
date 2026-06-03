@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- fix: restrict npm package contents to runtime and documentation files by @abetlen in #11
 - ci: add GitHub Actions checks for tests, packaging, and generated builds by @abetlen in #10
 - fix: expose browser API from pikchr.js by @abetlen in #9
 - fix: update stale package lockfile metadata by @abetlen in #8
