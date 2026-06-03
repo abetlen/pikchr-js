@@ -37,6 +37,9 @@ jobs:
       - name: Check package contents
         run: npm pack --dry-run
 
+      - name: Build GitHub Pages site
+        run: npm run site:build
+
   build:
     name: Check generated build
     runs-on: ubuntu-latest

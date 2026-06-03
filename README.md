@@ -5,6 +5,8 @@
 [![npm downloads](https://img.shields.io/npm/dm/pikchr-js.svg)](https://www.npmjs.com/package/pikchr-js)
 [![license](https://img.shields.io/npm/l/pikchr-js.svg)](LICENSE)
 
+Try the browser editor at [abetlen.github.io/pikchr-js](https://abetlen.github.io/pikchr-js/).
+
 What is Pikchr? From the [official documentation](https://pikchr.org/home/doc/trunk/homepage.md):
 
 > Pikchr (pronounced "picture") is a [PIC](https://en.wikipedia.org/wiki/Pic_language)-like markup language for diagrams in technical documentation.
@@ -106,6 +108,14 @@ Trusted Publishing requires GitHub-hosted runners, and the workflow uses Node.js
 For each release, merge a release PR that updates `package.json`, `package-lock.json`, and `CHANGELOG.md`, then create and publish a GitHub Release whose tag exactly matches the package version in `vX.Y.Z` form.
 
 The publish workflow verifies the tag against `package.json`, installs dependencies without a package-manager cache, runs tests, checks the tarball contents, and runs `npm publish` without an `NPM_TOKEN` secret.
+
+### Updating the GitHub Pages site
+
+The static browser editor lives in `site/`.
+
+Run `npm run site:build` to build the `_site/` artifact locally.
+
+The `pages.yml` workflow deploys the built site from pushes to `main`.
 
 ### Updating `pikchr.js`
 
