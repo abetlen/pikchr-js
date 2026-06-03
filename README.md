@@ -21,9 +21,11 @@ async function main() {
   const pikchr = await loadPikchr();
   const svg = pikchr("box");
   const result = pikchr.render("box");
+  const darkSvg = pikchr("box", "pikchr", pikchr.flags.DARK_MODE);
 
   console.log(svg);
   console.log(result.width, result.height);
+  console.log(darkSvg);
 }
 
 main();

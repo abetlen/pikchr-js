@@ -42,6 +42,10 @@ module.exports = function () {
     const pikchr = (markup, svgClass = "pikchr", flags = 0, _height, _width) =>
       render(markup, svgClass, flags).svg;
     pikchr.render = render;
+    pikchr.flags = {
+      PLAINTEXT_ERRORS: 0x0001,
+      DARK_MODE: 0x0002,
+    };
     return pikchr;
   });
 };

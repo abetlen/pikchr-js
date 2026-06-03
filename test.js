@@ -29,3 +29,19 @@ test('render returns svg dimensions', async t => {
     height: 76,
   });
 });
+
+test('flags expose upstream bit values', async t => {
+  const pikchr = await loadPikchr()
+	t.deepEqual(pikchr.flags, {
+    PLAINTEXT_ERRORS: 1,
+    DARK_MODE: 2,
+  });
+});
+
+test('flags can be passed to render', async t => {
+  const pikchr = await loadPikchr()
+  const output = pikchr.render(markup, "pikchr", pikchr.flags.DARK_MODE)
+	t.true(output.svg.includes('stroke:rgb(255,255,255);'));
+  t.is(output.width, 112);
+  t.is(output.height, 76);
+});
