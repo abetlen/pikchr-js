@@ -8,23 +8,11 @@ What is Pikchr? From the [official documentation](https://pikchr.org/home/doc/tr
 
 ## Installation
 
-Install with npm:
-
 ```sh
 npm install pikchr-js
 ```
 
-Install with Yarn:
-
-```sh
-yarn add pikchr-js
-```
-
-Install with pnpm:
-
-```sh
-pnpm add pikchr-js
-```
+Use your preferred npm-compatible package manager.
 
 ## Usage
 
