@@ -26,9 +26,9 @@ main();
 This Pikchr source:
 
 ```pikchr
-box "Pikchr" fit
+box "Pikchr" fit fill white
 arrow
-box "SVG" fit
+box "SVG" fit fill white
 ```
 
 renders as:
