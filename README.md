@@ -12,8 +12,6 @@ What is Pikchr? From the [official documentation](https://pikchr.org/home/doc/tr
 npm install pikchr-js
 ```
 
-Use your preferred npm-compatible package manager.
-
 ## Usage
 
 ```js
