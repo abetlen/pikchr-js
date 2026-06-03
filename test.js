@@ -48,16 +48,16 @@ test('flags can be passed to render', async t => {
   t.is(output.height, 76);
 });
 
-test('browser wrapper can be required directly', async t => {
-  const loadBrowserPikchr = require('./browser.js');
+test('browser bundle can be required directly', async t => {
+  const loadBrowserPikchr = require('./pikchr.browser.js');
   const pikchr = await loadBrowserPikchr();
   t.is(pikchr(markup), expected);
 });
 
-test('browser global wrapper renders without Node globals', async t => {
+test('browser bundle renders with one script tag and without Node globals', async t => {
   const context = {
     console,
-    document: { currentScript: { src: 'https://example.test/pikchr.js' } },
+    document: { currentScript: { src: 'https://example.test/pikchr.browser.js' } },
     TextDecoder,
     TextEncoder,
     WebAssembly,
@@ -65,8 +65,7 @@ test('browser global wrapper renders without Node globals', async t => {
   context.globalThis = context;
   context.window = context;
 
-  vm.runInNewContext(fs.readFileSync('pikchr.js', 'utf8'), context);
-  vm.runInNewContext(fs.readFileSync('browser.js', 'utf8'), context);
+  vm.runInNewContext(fs.readFileSync('pikchr.browser.js', 'utf8'), context);
 
   t.is(typeof context.loadPikchr, 'function');
   const pikchr = await context.loadPikchr();
@@ -76,4 +75,10 @@ test('browser global wrapper renders without Node globals', async t => {
     width: 112,
     height: 76,
   });
+});
+
+test('package root uses browser bundle for UNPKG', t => {
+  const pkg = require('./package.json');
+  t.is(pkg.unpkg, './pikchr.browser.js');
+  t.is(pkg.exports['.'].unpkg, './pikchr.browser.js');
 });

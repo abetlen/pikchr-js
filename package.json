@@ -6,10 +6,11 @@
   "repository": "github:abetlen/pikchr-js",
   "main": "index.js",
   "module": "index.mjs",
-  "browser": "browser.js",
+  "unpkg": "./pikchr.browser.js",
   "types": "index.d.ts",
   "exports": {
     ".": {
+      "unpkg": "./pikchr.browser.js",
       "import": {
         "types": "./index.d.mts",
         "default": "./index.mjs"
@@ -33,13 +34,9 @@
     },
     "./index.js": "./index.js",
     "./index.mjs": "./index.mjs",
-    "./browser": {
-      "types": "./browser.d.ts",
-      "default": "./browser.js"
-    },
-    "./browser.js": {
-      "types": "./browser.d.ts",
-      "default": "./browser.js"
+    "./pikchr.browser.js": {
+      "types": "./index.d.ts",
+      "default": "./pikchr.browser.js"
     },
     "./pikchr": "./pikchr.js",
     "./pikchr.js": "./pikchr.js",
