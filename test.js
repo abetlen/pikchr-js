@@ -10,6 +10,38 @@ const expected = `\
 
 test('simple', async t => {
   const pikchr = await loadPikchr()
+  const output = pikchr(markup)
+	t.is(output, expected);
+});
+
+test('legacy dimension arguments are accepted', async t => {
+  const pikchr = await loadPikchr()
   const output = pikchr(markup, "pikchr", 0, 1, 1)
 	t.is(output, expected);
+});
+
+test('render returns svg dimensions', async t => {
+  const pikchr = await loadPikchr()
+  const output = pikchr.render(markup)
+	t.deepEqual(output, {
+    svg: expected,
+    width: 112,
+    height: 76,
+  });
+});
+
+test('flags expose upstream bit values', async t => {
+  const pikchr = await loadPikchr()
+	t.deepEqual(pikchr.flags, {
+    PLAINTEXT_ERRORS: 1,
+    DARK_MODE: 2,
+  });
+});
+
+test('flags can be passed to render', async t => {
+  const pikchr = await loadPikchr()
+  const output = pikchr.render(markup, "pikchr", pikchr.flags.DARK_MODE)
+	t.true(output.svg.includes('stroke:rgb(255,255,255);'));
+  t.is(output.width, 112);
+  t.is(output.height, 76);
 });
