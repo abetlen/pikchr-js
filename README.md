@@ -68,8 +68,10 @@ Add changelog entries under `## [Unreleased]` using the pull request title follo
 2. Extract the archive outside this repository
 3. In the extracted `pikchr` source directory, run `make pikchr.c`
 4. Copy the generated `pikchr.c` into this repository
-5. Run `npm run build` to regenerate `pikchr.js` with the Dockerized Emscripten build
+5. Run `npm run build` to regenerate `pikchr.js` with the pinned Dockerized Emscripten 5.0.7 build
 6. Run `npm test`
+
+The Docker image is pinned so regenerated wasm output does not drift when new Emscripten releases are published.
 
 If upstream Pikchr changes its SVG output, update the test fixture in `test.js` to match the new generated output.
 
