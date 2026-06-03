@@ -8,6 +8,19 @@ What is Pikchr? From the [official documentation](https://pikchr.org/home/doc/tr
 
 # Contributing
 
+## Pull request titles and changelog entries
+
+Use pull request titles in the form `<tag>: <title>`, with an optional scope when it adds clarity.
+
+Prefer tags such as `feat`, `fix`, `chore`, `ci`, `docs`, and `refactor`.
+
+Add changelog entries under `## [Unreleased]` using the pull request title followed by `by @contributor in #1234`.
+
+```md
+- feat: add support for X by @contributor in #1234
+- fix(ci): repair Y build by @contributor in #1234
+```
+
 ## Updating `pikchr.js`
 
 1. Download the latest source archive of [`pikchr`](https://pikchr.org/home/rchvdwnld/trunk)
