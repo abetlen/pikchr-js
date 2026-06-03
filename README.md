@@ -37,7 +37,7 @@ main();
 
 ```html
 <div id="diagram"></div>
-<script src="https://unpkg.com/pikchr-js/pikchr.browser.js"></script>
+<script src="https://unpkg.com/pikchr-js"></script>
 <script>
   async function main() {
     const pikchr = await loadPikchr();

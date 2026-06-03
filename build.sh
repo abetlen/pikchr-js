@@ -19,11 +19,17 @@ emcc \
     -o ./pikchr.js \
     pikchr.c
 
-{
-    cat ./pikchr.js
-    cat <<'EOF'
+cat <<'EOF' >> ./pikchr.js
 
 ;(function (root, createModule) {
+  if (typeof module === "object" && module.exports) {
+    return;
+  }
+
+  if (root.loadPikchr !== undefined) {
+    return;
+  }
+
   function createPikchr(module) {
     function render(markup, svgClass = "pikchr", flags = 0) {
       const widthPtr = module._malloc(4);
@@ -74,12 +80,7 @@ emcc \
     return Promise.resolve(createModule()).then(createPikchr);
   }
 
-  if (typeof module === "object" && module.exports) {
-    module.exports = loadPikchr;
-    module.exports.default = loadPikchr;
-  } else {
-    root.loadPikchr = loadPikchr;
-  }
+  root.loadPikchr = loadPikchr;
 })(
   typeof globalThis !== "undefined"
     ? globalThis
@@ -89,4 +90,3 @@ emcc \
   Module
 );
 EOF
-} > ./pikchr.browser.js
