@@ -19,7 +19,7 @@ const loadPikchr = require("pikchr-js");
 
 async function main() {
   const pikchr = await loadPikchr();
-  const svg = pikchr("box", "pikchr", 0, 1, 1);
+  const svg = pikchr("box");
 
   console.log(svg);
 }

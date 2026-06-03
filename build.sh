@@ -12,10 +12,9 @@ emcc \
     -s SINGLE_FILE=1 \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORTED_FUNCTIONS='["_pikchr", "_free"]' \
-    -s EXPORTED_RUNTIME_METHODS='["ccall"]' \
+    -s EXPORTED_RUNTIME_METHODS='["ccall", "UTF8ToString"]' \
     -s MALLOC=emmalloc \
     -s MODULARIZE=1 \
     -s STRICT=1 \
     -o ./pikchr.js \
     pikchr.c
-

@@ -10,6 +10,6 @@ const expected = `\
 
 test('simple', async t => {
   const pikchr = await loadPikchr()
-  const output = pikchr(markup, "pikchr", 0, 1, 1)
+  const output = pikchr(markup)
 	t.is(output, expected);
 });
