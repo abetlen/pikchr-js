@@ -2,6 +2,7 @@ const loadPikchr = require('./index.js');
 const fs = require('fs');
 const test = require('ava');
 const vm = require('vm');
+const { execFileSync } = require('node:child_process');
 
 const markup = `box`
 const expected = `\
@@ -83,4 +84,15 @@ test('package root uses pikchr.js for UNPKG', t => {
   const pkg = require('./package.json');
   t.is(pkg.unpkg, './pikchr.js');
   t.is(pkg.exports['.'].unpkg, './pikchr.js');
+});
+
+test('cli accepts "-" for output file and stdin', t => {
+  const output = execFileSync("node", ["bin/pikchr.js", "-src", "-div", "-"], {
+    input: "box",
+    encoding: "utf8",
+  });
+
+  t.true(output.includes('<div class="pikchr">'));
+  t.true(output.includes("pikchr-src"));
+  t.true(output.includes("<svg"));
 });
