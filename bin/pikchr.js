@@ -5,53 +5,7 @@
 const fs = require("node:fs");
 const loadPikchr = require("../index.js");
 
-const flagAliases = {
-  DARK_MODE: 0x0002,
-};
-
-function printUsage() {
-  console.log("Usage: pikchr [options] ?INFILE? ?OUTFILE?");
-  console.log();
-  console.log("Accepts a pikchr script as input and outputs rendered SVG.");
-  console.log("INFILE and OUTFILE default to stdin and stdout.");
-  console.log('The special filename "-" is also accepted for stdin/stdout.');
-  console.log();
-  console.log("Options:");
-  console.log("  -h, -?          Show this help text.");
-  console.log("  -dark           Use dark-mode colors.");
-  console.log("  -div            Add a wrapper div around the rendered SVG.");
-  console.log("  -div-indent     Indent the wrapper.");
-  console.log("  -div-center     Center the wrapper.");
-  console.log("  -div-left       Float the wrapper left.");
-  console.log("  -div-right      Float the wrapper right.");
-  console.log("  -div-toggle     Add toggle class on the wrapper.");
-  console.log("  -div-source     Add source view and set source class on wrapper.");
-  console.log("  -src            Include source as a separate element next to SVG.");
-  console.log();
-  console.log("Examples:");
-  console.log("  npx pikchr-js diagram.pikchr");
-  console.log("  bunx pikchr-js -dark -div-center diagram.pikchr diagram.svg");
-  console.log("  echo \"box\" | npx pikchr-js > diagram.svg");
-  console.log("  npx pikchr-js -src -div diagram.pikchr -");
-}
-
-function parseFlags(raw) {
-  if (raw == null) {
-    return 0;
-  }
-
-  return raw
-    .split(/[,+]/)
-    .map((entry) => entry.trim().toUpperCase())
-    .filter(Boolean)
-    .reduce((value, name) => {
-      const flag = flagAliases[name];
-      if (!Number.isInteger(flag)) {
-        throw new Error(`Unknown flag: ${name}`);
-      }
-      return value | flag;
-    }, 0);
-}
+const DARK_MODE_FLAG = 0x0002;
 
 function escapeHtml(raw) {
   return String(raw)
@@ -101,7 +55,6 @@ async function main() {
     divToggle: false,
     src: false,
     layout: null,
-    help: false,
     inputFile: null,
     outputFile: null,
   };
@@ -109,13 +62,8 @@ async function main() {
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
 
-    if (arg === "-h" || arg === "-?") {
-      options.help = true;
-      continue;
-    }
-
     if (arg === "-dark") {
-      options.flags |= parseFlags("DARK_MODE");
+      options.flags |= DARK_MODE_FLAG;
       continue;
     }
 
@@ -195,26 +143,17 @@ async function main() {
     throw new Error(`Unexpected argument: ${arg}`);
   }
 
-  if (options.help) {
-    printUsage();
-    process.exit(0);
-  }
-
   const useStdin = options.inputFile == null || options.inputFile === "-";
   let markup = useStdin ? null : fs.readFileSync(options.inputFile, "utf8");
 
   if (markup == null) {
     markup = await readStdin();
   }
-
-  const normalizedMarkup = String(markup).trim();
-  if (!normalizedMarkup) {
-    throw new Error("No input provided. Provide markup as an argument or from stdin.");
-  }
+  const markupText = String(markup);
 
   const load = await loadPikchr();
-  const result = load.render(normalizedMarkup, "pikchr", options.flags);
-  let output = applyDivOutput(result.svg, result.width, normalizedMarkup, options);
+  const result = load.render(markupText, "pikchr", options.flags);
+  let output = applyDivOutput(result.svg, result.width, markupText, options);
 
   if (options.outputFile === "-" || options.outputFile == null) {
     process.stdout.write(output);

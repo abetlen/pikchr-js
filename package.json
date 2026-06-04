@@ -10,7 +10,8 @@
   "main": "index.js",
   "module": "index.mjs",
   "bin": {
-    "pikchr": "./bin/pikchr.js"
+    "pikchr": "./bin/pikchr.js",
+    "pikchr-js": "./bin/pikchr.js"
   },
   "unpkg": "./pikchr.js",
   "types": "index.d.ts",
