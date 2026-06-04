@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-- docs: add GitHub Pages canvas view and compressed `sourcez` URL source support
+- docs: preserve Diagram mode while adding `view=canvas` alias and canvas-only share link in GitHub Pages
 
 ## [0.1.4] - 2026-06-04
 

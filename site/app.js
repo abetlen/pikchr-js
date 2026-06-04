@@ -25,6 +25,7 @@ box "SVG" fit fill white`;
     editorButton: document.getElementById("editorButton"),
     resetButton: document.getElementById("resetButton"),
     copyButton: document.getElementById("copyButton"),
+    copyCanvasButton: document.getElementById("copyCanvasButton"),
     downloadButton: document.getElementById("downloadButton"),
   };
 
@@ -151,18 +152,31 @@ box "SVG" fit fill white`;
     const params = new URLSearchParams(window.location.search);
     const view = params.get("view");
 
-    if (view === "canvas" || view === "editor") {
-      return view;
+    if (view === "canvas" || view === "diagram") {
+      return "diagram";
     }
 
-    if (view === "diagram") {
-      return "canvas";
+    if (view === "editor") {
+      return "editor";
     }
 
     return "editor";
   }
 
-  async function writeUrl() {
+  function normalizeView(view) {
+    if (view === "canvas" || view === "diagram") {
+      return "diagram";
+    }
+
+    if (view === "editor") {
+      return "editor";
+    }
+
+    return "editor";
+  }
+
+  async function buildShareUrl(viewOverride) {
+    state.source = elements.sourceInput.value;
     const params = new URLSearchParams();
     const encoded = await encodeSourceForUrl(state.source);
     params.delete("source");
@@ -174,11 +188,21 @@ box "SVG" fit fill white`;
       params.set("source", encoded.value);
     }
 
-    if (state.view === "canvas") {
-      params.set("view", "canvas");
+    const view = normalizeView(viewOverride ?? state.view);
+    const viewParam = view === "diagram"
+      ? viewOverride === "canvas" ? "canvas" : "diagram"
+      : view;
+
+    if (viewParam === "diagram" || viewParam === "canvas") {
+      params.set("view", viewParam);
     }
 
-    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    return `${window.location.pathname}?${params.toString()}`;
+  }
+
+  async function writeUrl(viewOverride) {
+    const url = await buildShareUrl(viewOverride);
+    window.history.replaceState(null, "", url);
   }
 
   function setConsole(message, mode) {
@@ -211,7 +235,7 @@ box "SVG" fit fill white`;
     }
 
     state.source = elements.sourceInput.value;
-    void writeUrl();
+    void writeUrl(undefined);
     elements.previewCanvas.classList.toggle("dark", elements.darkModeInput.checked);
 
     if (!state.source.trim()) {
@@ -265,9 +289,10 @@ box "SVG" fit fill white`;
   }
 
   function setView(view) {
-    state.view = view;
-    elements.workspace.classList.toggle("diagram-mode", view === "canvas");
-    void writeUrl();
+    state.view = normalizeView(view);
+    elements.workspace.classList.toggle("diagram-mode", state.view === "diagram");
+    elements.copyCanvasButton.hidden = state.view !== "diagram";
+    void writeUrl(state.view);
   }
 
   function resetSource() {
@@ -282,12 +307,19 @@ box "SVG" fit fill white`;
   }
 
   function copyLink() {
-    void writeUrl();
-    const url = window.location.href;
+    void copyUrlToClipboard();
+  }
+
+  async function copyCanvasLink() {
+    await copyUrlToClipboard("canvas", "Copied canvas link");
+  }
+
+  async function copyUrlToClipboard(viewOverride, successMessage = "Copied link") {
+    const url = await buildShareUrl(viewOverride);
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(
-        () => setConsole("Copied link", "success"),
+        () => setConsole(successMessage, "success"),
         () => setConsole(url, "success")
       );
       return;
@@ -325,10 +357,11 @@ box "SVG" fit fill white`;
     elements.sourceInput.addEventListener("input", scheduleRender);
     elements.darkModeInput.addEventListener("change", render);
     elements.plainErrorsInput.addEventListener("change", render);
-    elements.diagramButton.addEventListener("click", () => setView("canvas"));
+    elements.diagramButton.addEventListener("click", () => setView("diagram"));
     elements.editorButton.addEventListener("click", () => setView("editor"));
     elements.resetButton.addEventListener("click", resetSource);
     elements.copyButton.addEventListener("click", copyLink);
+    elements.copyCanvasButton.addEventListener("click", copyCanvasLink);
     elements.downloadButton.addEventListener("click", downloadSvg);
 
     window.addEventListener("popstate", () => {
