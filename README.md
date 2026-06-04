@@ -55,6 +55,24 @@ async function main() {
 main();
 ```
 
+### Bun CLI
+
+```sh
+bun add -g pikchr-js
+```
+
+```sh
+pikchr "box" > diagram.svg
+```
+
+```sh
+pikchr --input diagram.pikchr --output diagram.svg --flags DARK_MODE
+```
+
+```sh
+echo "box" | bunx pikchr-js --class custom-class > diagram.svg
+```
+
 ## Example
 
 This Pikchr source:
