@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-- (none)
+- docs: add GitHub Pages canvas view and compressed `sourcez` URL source support
 
 ## [0.1.4] - 2026-06-04
 

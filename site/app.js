@@ -28,8 +28,18 @@ box "SVG" fit fill white`;
     downloadButton: document.getElementById("downloadButton"),
   };
 
+  const textEncoder = new TextEncoder();
+  const textDecoder = new TextDecoder();
+
   function encodeSource(source) {
-    const bytes = new TextEncoder().encode(source);
+    return encodeBytes(textEncoder.encode(source));
+  }
+
+  function decodeSource(value) {
+    return textDecoder.decode(decodeBase64UrlToBytes(value));
+  }
+
+  function encodeBytes(bytes) {
     let binary = "";
 
     for (let index = 0; index < bytes.length; index += 1) {
@@ -39,7 +49,7 @@ box "SVG" fit fill white`;
     return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
   }
 
-  function decodeBase64Url(value) {
+  function decodeBase64UrlToBytes(value) {
     const padded = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
     const binary = atob(padded);
     const bytes = new Uint8Array(binary.length);
@@ -48,21 +58,79 @@ box "SVG" fit fill white`;
       bytes[index] = binary.charCodeAt(index);
     }
 
-    return new TextDecoder().decode(bytes);
+    return bytes;
+  }
+
+  function decodeLegacyBase64ToBytes(value) {
+    const padded = decodeURIComponent(escape(atob(value)));
+    const bytes = new Uint8Array(padded.length);
+
+    for (let index = 0; index < padded.length; index += 1) {
+      bytes[index] = padded.charCodeAt(index);
+    }
+
+    return bytes;
+  }
+
+  async function decodeCompressedSource(value) {
+    if (typeof DecompressionStream !== "function") {
+      throw new Error("compressed source is not supported in this browser");
+    }
+
+    const bytes = decodeBase64UrlToBytes(value);
+    const blob = new Blob([bytes]);
+    const stream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+    return await new Response(stream).text();
+  }
+
+  async function encodeCompressedSource(source) {
+    if (typeof CompressionStream !== "function") {
+      return null;
+    }
+
+    const bytes = textEncoder.encode(source);
+    const blob = new Blob([bytes]);
+    const stream = blob.stream().pipeThrough(new CompressionStream("gzip"));
+    const compressed = await new Response(stream).arrayBuffer();
+
+    return encodeBytes(new Uint8Array(compressed));
+  }
+
+  async function encodeSourceForUrl(source) {
+    const encoded = encodeSource(source);
+    const compressed = await encodeCompressedSource(source);
+
+    if (!compressed) {
+      return { compressed: false, value: encoded };
+    }
+
+    // Prefer compressed only when it is actually smaller than plain encoding.
+    return compressed.length < encoded.length
+      ? { compressed: true, value: compressed }
+      : { compressed: false, value: encoded };
   }
 
   function decodeLegacyBase64(value) {
-    return decodeURIComponent(escape(atob(value)));
+    return textDecoder.decode(decodeLegacyBase64ToBytes(value));
   }
 
-  function readSourceFromUrl() {
+  async function readSourceFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    const encodedSource = params.get("source");
+    const compressedSource = params.get("sourcez");
     const legacyEncoded = params.get("encoded");
+    const encodedSource = params.get("source");
+
+    if (compressedSource) {
+      try {
+        return await decodeCompressedSource(compressedSource);
+      } catch (_error) {
+        // fall through to base64/plain sources
+      }
+    }
 
     if (encodedSource) {
       try {
-        return decodeBase64Url(encodedSource);
+        return decodeSource(encodedSource);
       } catch (_error) {
         return initialSource;
       }
@@ -81,15 +149,33 @@ box "SVG" fit fill white`;
 
   function readViewFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    return params.get("view") === "diagram" ? "diagram" : "editor";
+    const view = params.get("view");
+
+    if (view === "canvas" || view === "editor") {
+      return view;
+    }
+
+    if (view === "diagram") {
+      return "canvas";
+    }
+
+    return "editor";
   }
 
-  function writeUrl() {
+  async function writeUrl() {
     const params = new URLSearchParams();
-    params.set("source", encodeSource(state.source));
+    const encoded = await encodeSourceForUrl(state.source);
+    params.delete("source");
+    params.delete("sourcez");
 
-    if (state.view === "diagram") {
-      params.set("view", "diagram");
+    if (encoded.compressed) {
+      params.set("sourcez", encoded.value);
+    } else {
+      params.set("source", encoded.value);
+    }
+
+    if (state.view === "canvas") {
+      params.set("view", "canvas");
     }
 
     window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
@@ -125,7 +211,7 @@ box "SVG" fit fill white`;
     }
 
     state.source = elements.sourceInput.value;
-    writeUrl();
+    void writeUrl();
     elements.previewCanvas.classList.toggle("dark", elements.darkModeInput.checked);
 
     if (!state.source.trim()) {
@@ -180,8 +266,8 @@ box "SVG" fit fill white`;
 
   function setView(view) {
     state.view = view;
-    elements.workspace.classList.toggle("diagram-mode", view === "diagram");
-    writeUrl();
+    elements.workspace.classList.toggle("diagram-mode", view === "canvas");
+    void writeUrl();
   }
 
   function resetSource() {
@@ -196,7 +282,7 @@ box "SVG" fit fill white`;
   }
 
   function copyLink() {
-    writeUrl();
+    void writeUrl();
     const url = window.location.href;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -239,31 +325,35 @@ box "SVG" fit fill white`;
     elements.sourceInput.addEventListener("input", scheduleRender);
     elements.darkModeInput.addEventListener("change", render);
     elements.plainErrorsInput.addEventListener("change", render);
-    elements.diagramButton.addEventListener("click", () => setView("diagram"));
+    elements.diagramButton.addEventListener("click", () => setView("canvas"));
     elements.editorButton.addEventListener("click", () => setView("editor"));
     elements.resetButton.addEventListener("click", resetSource);
     elements.copyButton.addEventListener("click", copyLink);
     elements.downloadButton.addEventListener("click", downloadSvg);
 
     window.addEventListener("popstate", () => {
-      elements.sourceInput.value = readSourceFromUrl();
-      setView(readViewFromUrl());
-      render();
+      void (async () => {
+        elements.sourceInput.value = await readSourceFromUrl();
+        setView(readViewFromUrl());
+        render();
+      })();
     });
   }
 
   function initialize() {
-    elements.sourceInput.value = readSourceFromUrl();
-    setView(readViewFromUrl());
-    bindEvents();
+    void (async () => {
+      elements.sourceInput.value = await readSourceFromUrl();
+      setView(readViewFromUrl());
+      bindEvents();
 
-    window.loadPikchr().then((pikchr) => {
-      state.pikchr = pikchr;
-      render();
-    }).catch((error) => {
-      const message = error && error.message ? error.message : String(error);
-      setConsole(message, "error");
-    });
+      try {
+        state.pikchr = await window.loadPikchr();
+        render();
+      } catch (error) {
+        const message = error && error.message ? error.message : String(error);
+        setConsole(message, "error");
+      }
+    })();
   }
 
   initialize();
