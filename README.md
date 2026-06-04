@@ -55,6 +55,26 @@ async function main() {
 main();
 ```
 
+### Command Line
+
+Run the bundled `pikchr` binary via `npx` or `bunx`.
+
+```sh
+npx pikchr-js -div-center diagram.pikchr diagram.svg
+```
+
+```sh
+bunx pikchr-js -dark diagram.pikchr > diagram.svg
+```
+
+```sh
+echo "box" | npx pikchr-js -src -div - > diagram.svg
+```
+
+The CLI syntax is identical to upstream `pikchr`: `pikchr [options] ?INFILE? ?OUTFILE?`.
+Supported options are `-dark`, `-src`, `-div`, `-div-indent`, `-div-center`, `-div-left`, `-div-right`, `-div-toggle`, and `-div-source`.
+Input and output filenames default to stdin and stdout, and `-` can be used to force either side.
+
 ## Example
 
 This Pikchr source:
