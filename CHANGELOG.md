@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - (none)
 
+## [0.1.4] - 2026-06-04
+
+- fix: allow `-` stream aliases for INFILE/OUTFILE in CLI by @abetlen in #18
+
 ## [0.1.3] - 2026-06-04
 
 - feat: add pikchr-compatible CLI for npx and bunx by @abetlen in #16
