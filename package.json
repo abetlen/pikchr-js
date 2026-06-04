@@ -9,6 +9,9 @@
   },
   "main": "index.js",
   "module": "index.mjs",
+  "bin": {
+    "pikchr": "./bin/pikchr.js"
+  },
   "unpkg": "./pikchr.js",
   "types": "index.d.ts",
   "exports": {
@@ -46,6 +49,7 @@
     "LICENSE",
     "README.md",
     "examples/pikchr-to-svg.svg",
+    "bin/pikchr.js",
     "index.d.mts",
     "index.d.ts",
     "index.js",
