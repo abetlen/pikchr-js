@@ -1,6 +1,6 @@
 {
   "name": "pikchr-js",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Pikchr diagram markup language ported to Javascript",
   "homepage": "https://github.com/abetlen/pikchr-js#readme",
   "repository": {
