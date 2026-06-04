@@ -1,36 +1,38 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 "use strict";
 
 const fs = require("node:fs");
-const path = require("node:path");
 const loadPikchr = require("../index.js");
 
 const flagAliases = {
-  PLAINTEXT_ERRORS: 0x0001,
-  PLAINTEXT_ERRORS_ONLY: 0x0001,
   DARK_MODE: 0x0002,
 };
 
 function printUsage() {
-  console.log("Usage: pikchr [options] [markup]");
+  console.log("Usage: pikchr [options] ?INFILE? ?OUTFILE?");
   console.log();
-  console.log("Reads markup from the first positional argument or stdin.");
-  console.log("If --input is provided, that file is used for markup.");
+  console.log("Accepts a pikchr script as input and outputs rendered SVG.");
+  console.log("INFILE and OUTFILE default to stdin and stdout.");
+  console.log('The special filename "-" is also accepted for stdin/stdout.');
   console.log();
   console.log("Options:");
-  console.log("  -h, --help                  Show this help text.");
-  console.log("  -v, --version               Print package version.");
-  console.log("  -c, --class <name>          Set SVG class name (default: pikchr).");
-  console.log("  -f, --flags <flags>         Pass pikchr flags as number or CSV of names.");
-  console.log("  -i, --input <file>          Read pikchr markup from file.");
-  console.log("  -o, --output <file>         Write output to file instead of stdout.");
+  console.log("  -h, -?          Show this help text.");
+  console.log("  -dark           Use dark-mode colors.");
+  console.log("  -div            Add a wrapper div around the rendered SVG.");
+  console.log("  -div-indent     Indent the wrapper.");
+  console.log("  -div-center     Center the wrapper.");
+  console.log("  -div-left       Float the wrapper left.");
+  console.log("  -div-right      Float the wrapper right.");
+  console.log("  -div-toggle     Add toggle class on the wrapper.");
+  console.log("  -div-source     Add source view and set source class on wrapper.");
+  console.log("  -src            Include source as a separate element next to SVG.");
   console.log();
   console.log("Examples:");
-  console.log('  bunx pikchr-js "box"');
-  console.log('  bunx pikchr-js --flags dark_mode "box -> dot"');
-  console.log("  bunx pikchr-js -i diagram.pikchr -o diagram.svg");
-  console.log('  echo "box" | bunx pikchr-js');
+  console.log("  npx pikchr-js diagram.pikchr");
+  console.log("  bunx pikchr-js -dark -div-center diagram.pikchr diagram.svg");
+  console.log("  echo \"box\" | npx pikchr-js > diagram.svg");
+  console.log("  npx pikchr-js -src -div diagram.pikchr -");
 }
 
 function parseFlags(raw) {
@@ -38,17 +40,9 @@ function parseFlags(raw) {
     return 0;
   }
 
-  if (/^0x/i.test(raw)) {
-    return Number.parseInt(raw, 16);
-  }
-
-  if (/^\d+$/.test(raw)) {
-    return Number(raw);
-  }
-
   return raw
     .split(/[,+]/)
-    .map((entry) => entry.trim().toUpperCase().replace(/[^A-Z0-9_]/g, "_"))
+    .map((entry) => entry.trim().toUpperCase())
     .filter(Boolean)
     .reduce((value, name) => {
       const flag = flagAliases[name];
@@ -59,6 +53,13 @@ function parseFlags(raw) {
     }, 0);
 }
 
+function escapeHtml(raw) {
+  return String(raw)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
 async function readStdin() {
   const chunks = [];
   for await (const chunk of process.stdin) {
@@ -67,84 +68,113 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf8");
 }
 
+function applyDivOutput(svg, width, markup, options) {
+  const source = options.src || options.divSource
+    ? `<pre class="pikchr-src" style="display:none">${escapeHtml(markup)}</pre>`
+    : "";
+  if (!options.div && !options.divSource) {
+    return `${svg}${source}`;
+  }
+
+  const outerClasses = ["pikchr"];
+  if (options.layout === "indent") outerClasses.push("indent");
+  if (options.layout === "center") outerClasses.push("center");
+  if (options.layout === "left") outerClasses.push("float-left");
+  if (options.layout === "right") outerClasses.push("float-right");
+  if (options.divToggle) outerClasses.push("toggle");
+  if (options.divSource) outerClasses.push("source");
+
+  return [
+    `<div class="${outerClasses.join(" ")}">`,
+    `<div class="pikchr-svg" style="max-width:${width}px;display:inline-block">${svg}</div>`,
+    source,
+    `</div>`,
+  ].join("");
+}
+
 async function main() {
   const args = process.argv.slice(2);
   const options = {
-    className: "pikchr",
     flags: 0,
+    div: false,
+    divSource: false,
+    divToggle: false,
+    src: false,
+    layout: null,
+    help: false,
     inputFile: null,
     outputFile: null,
-    markup: null,
-    help: false,
-    version: false,
   };
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
 
-    if (arg === "-h" || arg === "--help") {
+    if (arg === "-h" || arg === "-?") {
       options.help = true;
       continue;
     }
 
-    if (arg === "-v" || arg === "--version") {
-      options.version = true;
+    if (arg === "-dark") {
+      options.flags |= parseFlags("DARK_MODE");
       continue;
     }
 
-    if (arg === "-c" || arg === "--class") {
-      if (i + 1 >= args.length || args[i + 1].startsWith("-")) {
-        throw new Error("--class requires a value.");
+    if (arg === "-src") {
+      options.src = true;
+      continue;
+    }
+
+    if (arg === "-div") {
+      options.div = true;
+      continue;
+    }
+
+    if (arg === "-div-indent") {
+      if (options.layout && options.layout !== "indent") {
+        throw new Error("Cannot combine -div-indent with -div-center, -div-left, or -div-right.");
       }
-      options.className = args[i + 1];
-      i += 1;
+      options.div = true;
+      options.layout = "indent";
       continue;
     }
 
-    if (arg === "-f" || arg === "--flags") {
-      if (i + 1 >= args.length || args[i + 1].startsWith("-")) {
-        throw new Error("--flags requires a value.");
+    if (arg === "-div-center") {
+      if (options.layout && options.layout !== "center") {
+        throw new Error("Cannot combine -div-center with -div-indent, -div-left, or -div-right.");
       }
-      options.flags = parseFlags(args[i + 1]);
-      i += 1;
+      options.div = true;
+      options.layout = "center";
       continue;
     }
 
-    if (arg === "-i" || arg === "--input") {
-      if (i + 1 >= args.length || args[i + 1].startsWith("-")) {
-        throw new Error("--input requires a file path.");
+    if (arg === "-div-left") {
+      if (options.layout && options.layout !== "left") {
+        throw new Error("Cannot combine -div-left with -div-indent, -div-center, or -div-right.");
       }
-      options.inputFile = args[i + 1];
-      i += 1;
+      options.div = true;
+      options.layout = "left";
       continue;
     }
 
-    if (arg === "-o" || arg === "--output") {
-      if (i + 1 >= args.length || args[i + 1].startsWith("-")) {
-        throw new Error("--output requires a file path.");
+    if (arg === "-div-right") {
+      if (options.layout && options.layout !== "right") {
+        throw new Error("Cannot combine -div-right with -div-indent, -div-center, or -div-left.");
       }
-      options.outputFile = args[i + 1];
-      i += 1;
+      options.div = true;
+      options.layout = "right";
       continue;
     }
 
-    if (arg.startsWith("--class=")) {
-      options.className = arg.slice("--class=".length);
+    if (arg === "-div-toggle") {
+      options.div = true;
+      options.divToggle = true;
       continue;
     }
 
-    if (arg.startsWith("--flags=")) {
-      options.flags = parseFlags(arg.slice("--flags=".length));
-      continue;
-    }
-
-    if (arg.startsWith("--input=")) {
-      options.inputFile = arg.slice("--input=".length);
-      continue;
-    }
-
-    if (arg.startsWith("--output=")) {
-      options.outputFile = arg.slice("--output=".length);
+    if (arg === "-div-source") {
+      options.div = true;
+      options.divSource = true;
+      options.src = true;
       continue;
     }
 
@@ -152,11 +182,17 @@ async function main() {
       throw new Error(`Unknown option: ${arg}`);
     }
 
-    if (options.markup !== null) {
-      throw new Error(`Unexpected argument: ${arg}`);
+    if (options.inputFile === null) {
+      options.inputFile = arg;
+      continue;
     }
 
-    options.markup = arg;
+    if (options.outputFile === null) {
+      options.outputFile = arg;
+      continue;
+    }
+
+    throw new Error(`Unexpected argument: ${arg}`);
   }
 
   if (options.help) {
@@ -164,22 +200,10 @@ async function main() {
     process.exit(0);
   }
 
-  if (options.version) {
-    const packagePath = path.resolve(__dirname, "..", "package.json");
-    const { version } = JSON.parse(fs.readFileSync(packagePath, "utf8"));
-    console.log(version);
-    process.exit(0);
-  }
-
-  let markup = options.inputFile
-    ? fs.readFileSync(options.inputFile, "utf8")
-    : options.markup;
+  const useStdin = options.inputFile == null || options.inputFile === "-";
+  let markup = useStdin ? null : fs.readFileSync(options.inputFile, "utf8");
 
   if (markup == null) {
-    if (process.stdin.isTTY) {
-      printUsage();
-      throw new Error("No input provided. Provide markup as an argument or from stdin.");
-    }
     markup = await readStdin();
   }
 
@@ -189,14 +213,15 @@ async function main() {
   }
 
   const load = await loadPikchr();
-  const output = load(normalizedMarkup, options.className, options.flags);
+  const result = load.render(normalizedMarkup, "pikchr", options.flags);
+  let output = applyDivOutput(result.svg, result.width, normalizedMarkup, options);
 
-  if (options.outputFile) {
-    fs.writeFileSync(options.outputFile, output, "utf8");
+  if (options.outputFile === "-" || options.outputFile == null) {
+    process.stdout.write(output);
     return;
   }
 
-  process.stdout.write(output);
+  fs.writeFileSync(options.outputFile, output, "utf8");
 }
 
 main().catch((error) => {
