@@ -55,23 +55,23 @@ async function main() {
 main();
 ```
 
-### Bun CLI
+### Command Line
 
 ```sh
-bun add -g pikchr-js
+npx pikchr-js -div-center diagram.pikchr diagram.svg
 ```
 
 ```sh
-pikchr "box" > diagram.svg
+bunx pikchr-js -dark diagram.pikchr > diagram.svg
 ```
 
 ```sh
-pikchr --input diagram.pikchr --output diagram.svg --flags DARK_MODE
+echo "box" | npx pikchr-js -src -div - > diagram.svg
 ```
 
-```sh
-echo "box" | bunx pikchr-js --class custom-class > diagram.svg
-```
+The command-line options mirror the upstream `pikchr` tool.
+Supported options include `-dark`, `-src`, `-div`, `-div-indent`, `-div-center`, `-div-left`, `-div-right`, `-div-toggle`, and `-div-source`.
+Input and output filenames default to stdin and stdout, and `-` can be used to force either side.
 
 ## Example
 
