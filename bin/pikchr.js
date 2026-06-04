@@ -126,6 +126,20 @@ async function main() {
       continue;
     }
 
+    if (arg === "-") {
+      if (options.inputFile === null) {
+        options.inputFile = arg;
+        continue;
+      }
+
+      if (options.outputFile === null) {
+        options.outputFile = arg;
+        continue;
+      }
+
+      throw new Error(`Unexpected argument: ${arg}`);
+    }
+
     if (arg.startsWith("-")) {
       throw new Error(`Unknown option: ${arg}`);
     }
