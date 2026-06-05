@@ -149,7 +149,11 @@ box "SVG" fit fill white`;
     const params = new URLSearchParams(window.location.search);
     const view = params.get("view");
 
-    if (view === "canvas" || view === "diagram") {
+    if (view === "canvas") {
+      return "canvas";
+    }
+
+    if (view === "diagram") {
       return "diagram";
     }
 
@@ -161,12 +165,8 @@ box "SVG" fit fill white`;
   }
 
   function normalizeView(view) {
-    if (view === "canvas" || view === "diagram") {
-      return "diagram";
-    }
-
-    if (view === "editor") {
-      return "editor";
+    if (view === "canvas" || view === "diagram" || view === "editor") {
+      return view;
     }
 
     return "editor";
@@ -186,12 +186,9 @@ box "SVG" fit fill white`;
     }
 
     const view = normalizeView(viewOverride ?? state.view);
-    const viewParam = view === "diagram"
-      ? viewOverride === "canvas" ? "canvas" : "diagram"
-      : view;
 
-    if (viewParam === "diagram" || viewParam === "canvas") {
-      params.set("view", viewParam);
+    if (view === "canvas" || view === "diagram") {
+      params.set("view", view);
     }
 
     return `${window.location.pathname}?${params.toString()}`;
@@ -288,6 +285,8 @@ box "SVG" fit fill white`;
   function setView(view) {
     state.view = normalizeView(view);
     elements.workspace.classList.toggle("diagram-mode", state.view === "diagram");
+    elements.workspace.classList.toggle("canvas-mode", state.view === "canvas");
+    document.body.classList.toggle("canvas-mode", state.view === "canvas");
     elements.copyCanvasButton.hidden = state.view !== "diagram";
     void writeUrl(state.view);
   }
