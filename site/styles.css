@@ -242,6 +242,49 @@ a:hover {
   display: inline-block;
 }
 
+body.canvas-mode {
+  background: #fff;
+}
+
+body.canvas-mode .topbar {
+  display: none;
+}
+
+body.canvas-mode .workspace {
+  border: 0;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+  padding: 0;
+}
+
+body.canvas-mode .source-pane,
+body.canvas-mode .preview-pane .pane-header,
+body.canvas-mode .preview-meta {
+  display: none;
+}
+
+body.canvas-mode .preview-pane {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 100vh;
+}
+
+body.canvas-mode .preview-canvas {
+  align-items: flex-start;
+  background: #fff;
+  display: block;
+  min-height: 100vh;
+  overflow: auto;
+  padding: 0;
+}
+
+body.canvas-mode .preview-canvas svg {
+  display: block;
+  max-height: none;
+  max-width: none;
+}
+
 @media (max-width: 860px) {
   .topbar {
     align-items: flex-start;

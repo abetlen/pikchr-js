@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
-- (none)
+- docs: add `view=canvas` dedicated UI-free render mode with source-compressed defaults and preserve existing `view=diagram` behavior by @abetlen in #20
 
 ## [0.1.4] - 2026-06-04
 

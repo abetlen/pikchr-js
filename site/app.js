@@ -25,11 +25,22 @@ box "SVG" fit fill white`;
     editorButton: document.getElementById("editorButton"),
     resetButton: document.getElementById("resetButton"),
     copyButton: document.getElementById("copyButton"),
+    copyCanvasButton: document.getElementById("copyCanvasButton"),
     downloadButton: document.getElementById("downloadButton"),
   };
 
+  const textEncoder = new TextEncoder();
+  const textDecoder = new TextDecoder();
+
   function encodeSource(source) {
-    const bytes = new TextEncoder().encode(source);
+    return encodeBytes(textEncoder.encode(source));
+  }
+
+  function decodeSource(value) {
+    return textDecoder.decode(decodeBase64UrlToBytes(value));
+  }
+
+  function encodeBytes(bytes) {
     let binary = "";
 
     for (let index = 0; index < bytes.length; index += 1) {
@@ -39,7 +50,7 @@ box "SVG" fit fill white`;
     return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
   }
 
-  function decodeBase64Url(value) {
+  function decodeBase64UrlToBytes(value) {
     const padded = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
     const binary = atob(padded);
     const bytes = new Uint8Array(binary.length);
@@ -48,21 +59,76 @@ box "SVG" fit fill white`;
       bytes[index] = binary.charCodeAt(index);
     }
 
-    return new TextDecoder().decode(bytes);
+    return bytes;
+  }
+
+  function decodeLegacyBase64ToBytes(value) {
+    const padded = decodeURIComponent(escape(atob(value)));
+    const bytes = new Uint8Array(padded.length);
+
+    for (let index = 0; index < padded.length; index += 1) {
+      bytes[index] = padded.charCodeAt(index);
+    }
+
+    return bytes;
+  }
+
+  async function decodeCompressedSource(value) {
+    if (typeof DecompressionStream !== "function") {
+      throw new Error("compressed source is not supported in this browser");
+    }
+
+    const bytes = decodeBase64UrlToBytes(value);
+    const blob = new Blob([bytes]);
+    const stream = blob.stream().pipeThrough(new DecompressionStream("gzip"));
+    return await new Response(stream).text();
+  }
+
+  async function encodeCompressedSource(source) {
+    if (typeof CompressionStream !== "function") {
+      return null;
+    }
+
+    const bytes = textEncoder.encode(source);
+    const blob = new Blob([bytes]);
+    const stream = blob.stream().pipeThrough(new CompressionStream("gzip"));
+    const compressed = await new Response(stream).arrayBuffer();
+
+    return encodeBytes(new Uint8Array(compressed));
+  }
+
+  async function encodeSourceForUrl(source) {
+    const encoded = encodeSource(source);
+    const compressed = await encodeCompressedSource(source);
+
+    if (!compressed) {
+      return { compressed: false, value: encoded };
+    }
+
+    return { compressed: true, value: compressed };
   }
 
   function decodeLegacyBase64(value) {
-    return decodeURIComponent(escape(atob(value)));
+    return textDecoder.decode(decodeLegacyBase64ToBytes(value));
   }
 
-  function readSourceFromUrl() {
+  async function readSourceFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    const encodedSource = params.get("source");
+    const compressedSource = params.get("sourcez");
     const legacyEncoded = params.get("encoded");
+    const encodedSource = params.get("source");
+
+    if (compressedSource) {
+      try {
+        return await decodeCompressedSource(compressedSource);
+      } catch (_error) {
+        // fall through to base64/plain sources
+      }
+    }
 
     if (encodedSource) {
       try {
-        return decodeBase64Url(encodedSource);
+        return decodeSource(encodedSource);
       } catch (_error) {
         return initialSource;
       }
@@ -81,18 +147,56 @@ box "SVG" fit fill white`;
 
   function readViewFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    return params.get("view") === "diagram" ? "diagram" : "editor";
-  }
+    const view = params.get("view");
 
-  function writeUrl() {
-    const params = new URLSearchParams();
-    params.set("source", encodeSource(state.source));
-
-    if (state.view === "diagram") {
-      params.set("view", "diagram");
+    if (view === "canvas") {
+      return "canvas";
     }
 
-    window.history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`);
+    if (view === "diagram") {
+      return "diagram";
+    }
+
+    if (view === "editor") {
+      return "editor";
+    }
+
+    return "editor";
+  }
+
+  function normalizeView(view) {
+    if (view === "canvas" || view === "diagram" || view === "editor") {
+      return view;
+    }
+
+    return "editor";
+  }
+
+  async function buildShareUrl(viewOverride) {
+    state.source = elements.sourceInput.value;
+    const params = new URLSearchParams();
+    const encoded = await encodeSourceForUrl(state.source);
+    params.delete("source");
+    params.delete("sourcez");
+
+    if (encoded.compressed) {
+      params.set("sourcez", encoded.value);
+    } else {
+      params.set("source", encoded.value);
+    }
+
+    const view = normalizeView(viewOverride ?? state.view);
+
+    if (view === "canvas" || view === "diagram") {
+      params.set("view", view);
+    }
+
+    return `${window.location.pathname}?${params.toString()}`;
+  }
+
+  async function writeUrl(viewOverride) {
+    const url = await buildShareUrl(viewOverride);
+    window.history.replaceState(null, "", url);
   }
 
   function setConsole(message, mode) {
@@ -125,7 +229,7 @@ box "SVG" fit fill white`;
     }
 
     state.source = elements.sourceInput.value;
-    writeUrl();
+    void writeUrl(undefined);
     elements.previewCanvas.classList.toggle("dark", elements.darkModeInput.checked);
 
     if (!state.source.trim()) {
@@ -179,9 +283,12 @@ box "SVG" fit fill white`;
   }
 
   function setView(view) {
-    state.view = view;
-    elements.workspace.classList.toggle("diagram-mode", view === "diagram");
-    writeUrl();
+    state.view = normalizeView(view);
+    elements.workspace.classList.toggle("diagram-mode", state.view === "diagram");
+    elements.workspace.classList.toggle("canvas-mode", state.view === "canvas");
+    document.body.classList.toggle("canvas-mode", state.view === "canvas");
+    elements.copyCanvasButton.hidden = state.view !== "diagram";
+    void writeUrl(state.view);
   }
 
   function resetSource() {
@@ -196,12 +303,19 @@ box "SVG" fit fill white`;
   }
 
   function copyLink() {
-    writeUrl();
-    const url = window.location.href;
+    void copyUrlToClipboard();
+  }
+
+  async function copyCanvasLink() {
+    await copyUrlToClipboard("canvas", "Copied canvas link");
+  }
+
+  async function copyUrlToClipboard(viewOverride, successMessage = "Copied link") {
+    const url = await buildShareUrl(viewOverride);
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(
-        () => setConsole("Copied link", "success"),
+        () => setConsole(successMessage, "success"),
         () => setConsole(url, "success")
       );
       return;
@@ -243,27 +357,32 @@ box "SVG" fit fill white`;
     elements.editorButton.addEventListener("click", () => setView("editor"));
     elements.resetButton.addEventListener("click", resetSource);
     elements.copyButton.addEventListener("click", copyLink);
+    elements.copyCanvasButton.addEventListener("click", copyCanvasLink);
     elements.downloadButton.addEventListener("click", downloadSvg);
 
     window.addEventListener("popstate", () => {
-      elements.sourceInput.value = readSourceFromUrl();
-      setView(readViewFromUrl());
-      render();
+      void (async () => {
+        elements.sourceInput.value = await readSourceFromUrl();
+        setView(readViewFromUrl());
+        render();
+      })();
     });
   }
 
   function initialize() {
-    elements.sourceInput.value = readSourceFromUrl();
-    setView(readViewFromUrl());
-    bindEvents();
+    void (async () => {
+      elements.sourceInput.value = await readSourceFromUrl();
+      setView(readViewFromUrl());
+      bindEvents();
 
-    window.loadPikchr().then((pikchr) => {
-      state.pikchr = pikchr;
-      render();
-    }).catch((error) => {
-      const message = error && error.message ? error.message : String(error);
-      setConsole(message, "error");
-    });
+      try {
+        state.pikchr = await window.loadPikchr();
+        render();
+      } catch (error) {
+        const message = error && error.message ? error.message : String(error);
+        setConsole(message, "error");
+      }
+    })();
   }
 
   initialize();
