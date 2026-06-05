@@ -96,3 +96,133 @@ test('cli accepts "-" for output file and stdin', t => {
   t.true(output.includes("pikchr-src"));
   t.true(output.includes("<svg"));
 });
+
+test('site copy buttons write absolute share URLs', async t => {
+  const listeners = new Map();
+  const elements = {};
+  const ids = [
+    "workspace",
+    "sourceInput",
+    "previewCanvas",
+    "previewMeta",
+    "console",
+    "darkModeInput",
+    "plainErrorsInput",
+    "diagramButton",
+    "editorButton",
+    "resetButton",
+    "copyButton",
+    "copyCanvasButton",
+    "downloadButton",
+  ];
+
+  function createElement(id) {
+    return {
+      id,
+      checked: false,
+      disabled: false,
+      hidden: false,
+      innerHTML: "",
+      textContent: "",
+      value: "",
+      classList: {
+        toggle() {},
+      },
+      addEventListener(type, listener) {
+        listeners.set(`${id}:${type}`, listener);
+      },
+    };
+  }
+
+  for (const id of ids) {
+    elements[id] = createElement(id);
+  }
+
+  let clipboardText = "";
+  const context = {
+    Blob,
+    Buffer,
+    CompressionStream: undefined,
+    DecompressionStream: undefined,
+    Response,
+    TextDecoder,
+    TextEncoder,
+    URL,
+    URLSearchParams,
+    addEventListener() {},
+    atob(value) {
+      return Buffer.from(value, "base64").toString("binary");
+    },
+    btoa(value) {
+      return Buffer.from(value, "binary").toString("base64");
+    },
+    clearTimeout,
+    console,
+    document: {
+      body: {
+        classList: {
+          toggle() {},
+        },
+      },
+      getElementById(id) {
+        return elements[id];
+      },
+    },
+    history: {
+      replaceState(_state, _title, url) {
+        const nextUrl = new URL(url, context.location.href);
+        context.location.href = nextUrl.href;
+        context.location.pathname = nextUrl.pathname;
+        context.location.search = nextUrl.search;
+      },
+    },
+    location: {
+      href: "https://example.test/pikchr-js/",
+      pathname: "/pikchr-js/",
+      search: "",
+    },
+    navigator: {
+      clipboard: {
+        writeText(value) {
+          clipboardText = value;
+          return Promise.resolve();
+        },
+      },
+    },
+    setTimeout,
+  };
+  context.globalThis = context;
+  context.window = context;
+  context.loadPikchr = async () => ({
+    flags: {
+      DARK_MODE: 2,
+      PLAINTEXT_ERRORS: 1,
+    },
+    render() {
+      return {
+        svg: "<svg></svg>",
+        width: 1,
+        height: 1,
+      };
+    },
+  });
+
+  const flush = () => new Promise(resolve => setTimeout(resolve, 0));
+
+  vm.runInNewContext(fs.readFileSync("site/app.js", "utf8"), context);
+  await flush();
+
+  elements.sourceInput.value = "box";
+  listeners.get("copyButton:click")();
+  await flush();
+
+  t.regex(clipboardText, /^https:\/\/example\.test\/pikchr-js\/\?source=/);
+
+  listeners.get("copyCanvasButton:click")();
+  await flush();
+
+  const canvasUrl = new URL(clipboardText);
+  t.is(canvasUrl.origin, "https://example.test");
+  t.is(canvasUrl.pathname, "/pikchr-js/");
+  t.is(canvasUrl.searchParams.get("view"), "canvas");
+});
