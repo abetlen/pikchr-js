@@ -172,7 +172,7 @@ box "SVG" fit fill white`;
     return "editor";
   }
 
-  async function buildShareUrl(viewOverride) {
+  async function buildSharePath(viewOverride) {
     state.source = elements.sourceInput.value;
     const params = new URLSearchParams();
     const encoded = await encodeSourceForUrl(state.source);
@@ -194,8 +194,13 @@ box "SVG" fit fill white`;
     return `${window.location.pathname}?${params.toString()}`;
   }
 
+  async function buildShareUrl(viewOverride) {
+    const path = await buildSharePath(viewOverride);
+    return new URL(path, window.location.href).href;
+  }
+
   async function writeUrl(viewOverride) {
-    const url = await buildShareUrl(viewOverride);
+    const url = await buildSharePath(viewOverride);
     window.history.replaceState(null, "", url);
   }
 

@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## [Unreleased]
 
+- fix: copy full GitHub Pages share URLs by @abetlen in #22
 - docs: remove unintended GitHub Pages URL docs from README by @abetlen in #21
 - docs: add `view=canvas` dedicated UI-free render mode with source-compressed defaults and preserve existing `view=diagram` behavior by @abetlen in #20
 
