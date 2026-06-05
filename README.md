@@ -137,24 +137,6 @@ Run `npm run site:build` to build the `_site/` artifact locally.
 
 The `pages.yml` workflow deploys the built site from pushes to `main`.
 
-You can also deep-link directly into the editor:
-
-```text
-https://abetlen.github.io/pikchr-js/?source=<encoded-source>
-https://abetlen.github.io/pikchr-js/?sourcez=<compressed-source>
-https://abetlen.github.io/pikchr-js/?view=diagram&sourcez=<compressed-source>
-https://abetlen.github.io/pikchr-js/?view=canvas&sourcez=<compressed-source>
-https://abetlen.github.io/pikchr-js/?view=canvas&source=<encoded-source>
-```
-
-`view=diagram` opens the rendered diagram with editor controls available.
-`view=canvas` opens a separate mode that renders only the diagram SVG and hides all editor UI (no top bar, no source pane, no toggles, no metadata, no controls).
-If the editor is currently in Diagram mode, use the **Copy Canvas Link** button to copy the same source with the canvas-only `view=canvas` URL.
-
-New links default to `sourcez` for compactness; `source` remains accepted for backward compatibility.
-
-When supported, the editor prefers the `sourcez` parameter for compressed source payloads and falls back to `source`.
-
 ### Updating `pikchr.js`
 
 1. Download the latest source archive of [`pikchr`](https://pikchr.org/home/rchvdwnld/trunk)
