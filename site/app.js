@@ -105,10 +105,7 @@ box "SVG" fit fill white`;
       return { compressed: false, value: encoded };
     }
 
-    // Prefer compressed only when it is actually smaller than plain encoding.
-    return compressed.length < encoded.length
-      ? { compressed: true, value: compressed }
-      : { compressed: false, value: encoded };
+    return { compressed: true, value: compressed };
   }
 
   function decodeLegacyBase64(value) {

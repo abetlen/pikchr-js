@@ -145,9 +145,12 @@ https://abetlen.github.io/pikchr-js/?sourcez=<compressed-source>
 https://abetlen.github.io/pikchr-js/?view=canvas&source=<encoded-source>
 ```
 
-`view=diagram` (and legacy `view=canvas`) opens the page in canvas-only mode, hiding the source panel.
+`view=diagram` opens canvas-only mode, as before. `view=canvas` is a new alias for the same canvas-only
+view and is only surfaced by the **Copy Canvas Link** button.
 If the editor is currently in Diagram mode, use the **Copy Canvas Link** button to copy the same source
 with the canvas-only `view=canvas` URL.
+
+New links default to `sourcez` for compactness; `source` remains accepted for backward compatibility.
 
 When supported, the editor prefers the `sourcez` parameter for compressed source payloads and falls back to `source`.
 
